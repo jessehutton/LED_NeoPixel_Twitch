@@ -1,6 +1,5 @@
 import board
 import neopixel
-import itertools
 import requests
 import re
 import asyncio
@@ -183,6 +182,10 @@ top_edge = [*range(93, 117)]
 left_shelf = [*range(117, 140)]
 right_shelf = [*range(140, 165)]
 zone_array = [table, bottom_box6, bottom_box5, bottom_box4, bottom_box3, bottom_box2, bottom_box1, left_edge, top_box1, top_box2, top_box3, top_box4, top_edge]
+section1 = table + bottom_box4 + bottom_box2 + top_box2 + top_box4 + left_shelf
+section2 = bottom_box6 + bottom_box5 + bottom_box3 + bottom_box1 + top_box1 + top_box3 + right_shelf
+edges = left_edge +  top_edge
+nonedges = section1 + section2
 
 #Color Wheel for cycling colors
 def wheel(pos):
@@ -216,23 +219,24 @@ def block_set(p, r, g, b):
   for i in range(num_pixels):
     if i in p:
       pixels[i] = (r, b, g)
-
+'''
+testing code
 def wee_woo_swap(swap_other = False):  
   for i in range(num_pixels):
-    if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+    if i in section1:
       pixels[i] = (255, 0, 0) if pixels[i] == (0, 0, 0) else (255, 125, 0)
-    if i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+    if i in section2:
       pixels[i] = (0, 255, 0) if pixels[i] == (0, 0, 0) else (0, 125, 255)
-    if swap_other and i not in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf, bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+    if swap_other and i not in nonedges:
       pixels[i] = (255, 255, 255) if pixels[i] == (255, 255, 255) else (255, 255, 255)
 
 def wee_woo_test(l):
   for i in range(num_pixels):
-    if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+    if i in section1:
       pixels[i] = (0, 255, 0)
-    elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+    elif i in section2:
       pixels[i] = (0, 0, 0)
-    elif i in itertools.chain(left_edge, top_edge):
+    elif i in edges:
       pixels[i] = (0, 0, 0)
     else:
       pixels[i] = (255, 255, 255)
@@ -247,115 +251,115 @@ def wee_woo_test(l):
       wee_woo_swap()
       pixels.show()
       sleep(0.08)
-
+'''
 def wee_woo(l):
   for k in range(l):
     for j in range(20):
       if j < 5:
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (255, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 0, 0)
           else:
             pixels[i] = (255, 255, 255)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 255, 0)
           else:
             pixels[i] = (255, 255, 255)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
       elif 5 < j < 10:
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (255, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 0, 0)
           else:
             pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 255, 0)
           else:
             pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
       elif 10 < j < 15:
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 255, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 0, 0)
           else:
             pixels[i] = (255, 255, 255)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (255, 0, 0)
           else:
             pixels[i] = (255, 255, 255)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
       else:
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 255, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (0, 0, 0)
           else:
             pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
         for i in range(num_pixels):
-          if i in itertools.chain(table, bottom_box4, bottom_box2, top_box2, top_box4, left_shelf):
+          if i in section1:
             pixels[i] = (0, 0, 0)
-          elif i in itertools.chain(bottom_box6, bottom_box5, bottom_box3, bottom_box1, top_box1, top_box3, right_shelf):
+          elif i in section2:
             pixels[i] = (255, 0, 0)
           else:
             pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
-        for i in itertools.chain(left_edge, top_edge):
+        for i in edges:
           pixels[i] = (0, 0, 0)
         pixels.show()
         sleep(0.04)
