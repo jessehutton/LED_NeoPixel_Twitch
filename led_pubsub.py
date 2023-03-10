@@ -195,6 +195,9 @@ left_shelf = [*range(0, 71)]
 right_shelf = [*range(71, 142)]
 workbench_top = [*range(142, 190)]
 workbench_bottom = [*range(1126, 1161)]
+section1 = left_shelf + top_box3 + top_box1 + bottom_box2 + bottom_box4 + bottom_box6
+section2 = right_shelf + top_box4 + top_box2 + bottom_box1 + bottom_box3 + bottom_box5 + workbench_bottom
+section3 = workbench_top + top_edge
 
 #Color Wheel for cycling colors
 def wheel(pos):
@@ -218,133 +221,93 @@ def wheel(pos):
 
 def rainbow_cycle(wait):
   for j in range(wait):
-    for i in range(num_pixels):
-      pixel_index = (i * 256 // num_pixels) + j
+    for i in range(line_one):
+      pixel_index = (i * 256 // line_one) + j
       pixels[i] = wheel(pixel_index & 255)
-    pixels.show()
+    for i in range(line_two):
+      pixel_index = (i * 256 // line_two) + j
+      pixels_bottom[i] = wheel(pixel_index & 255)
+    show_all()
     sleep(0.005)
 
 def block_set(p, r, g, b):
-  if p[0] < 1000:
-    for i in range(line_one):
-      if i in p:
-        pixels[i] = (r, g, b)
-  else:
-    for i in range(line_two):
-      th = i + 1000
-      if th in p:
-        pixels_bottom[i] = (r, g, b)
+  for i in p:
+    if i < 1000:
+      pixels[i] = (r, g, b)
+    else:
+      i = i - 1000
+      pixels_bottom[i] = (r, g, b)
 
 def wee_woo(l):
   for k in range(l):
     for j in range(20):
       if j < 5:
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (255, 0, 0)
-          elif i in section2:
-            pixels[i] = (0, 0, 0)
-          else:
-            pixels[i] = (255, 255, 255)
-        pixels.show()
+        block_set(section1, 255, 0, 0)
+        block_set(section2, 0, 0, 0)
+        block_set(section3, 255, 255, 255)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 0, 0)
-          elif i in section2:
-            pixels[i] = (0, 255, 0)
-          else:
-            pixels[i] = (255, 255, 255)
-        pixels.show()
+        block_set(section1, 0, 0, 0)
+        block_set(section2, 0, 0, 255)
+        block_set(section3, 255, 255, 255)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
       elif 5 < j < 10:
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (255, 0, 0)
-          elif i in section2:
-            pixels[i] = (0, 0, 0)
-          else:
-            pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section1, 255, 0, 0)
+        block_set(section2, 0, 0, 0)
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 0, 0)
-          elif i in section2:
-            pixels[i] = (0, 255, 0)
-          else:
-            pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section1, 0, 0, 0)
+        block_set(section2, 0, 0, 255)
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
       elif 10 < j < 15:
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 255, 0)
-          elif i in section2:
-            pixels[i] = (0, 0, 0)
-          else:
-            pixels[i] = (255, 255, 255)
-        pixels.show()
+        block_set(section1, 0, 0, 255)
+        block_set(section2, 0, 0, 0)
+        block_set(section3, 255, 255, 255)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 0, 0)
-          elif i in section2:
-            pixels[i] = (255, 0, 0)
-          else:
-            pixels[i] = (255, 255, 255)
-        pixels.show()
+        block_set(section1, 0, 0, 0)
+        block_set(section2, 255, 0, 0)
+        block_set(section3, 255, 255, 255)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
       else:
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 255, 0)
-          elif i in section2:
-            pixels[i] = (0, 0, 0)
-          else:
-            pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section1, 0, 0, 255)
+        block_set(section2, 0, 0, 0)
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in range(num_pixels):
-          if i in section1:
-            pixels[i] = (0, 0, 0)
-          elif i in section2:
-            pixels[i] = (255, 0, 0)
-          else:
-            pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section1, 0, 0, 0)
+        block_set(section2, 255, 0, 0)
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
-        for i in edges:
-          pixels[i] = (0, 0, 0)
-        pixels.show()
+        block_set(section3, 0, 0, 0)
+        show_all()
         sleep(0.04)
 
 def set_all(r, g, b):
