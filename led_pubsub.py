@@ -40,8 +40,8 @@ def callback_points_redeem(uuid: UUID, data: dict) -> None:
       user_input = data['data']['redemption']['user_input']
     else:
       user_input = False
+    redeem_color(redeem)
     print(user + ' redeemed ' + redeem)
-    redeem_color(redeem, user_input)
 
 #Subs via Twitch API
 def callback_subs(uuid: UUID, data: dict) -> None:
@@ -52,9 +52,9 @@ def callback_subs(uuid: UUID, data: dict) -> None:
 #Bits via Twitch API
 def callback_bits(uuid: UUID, data: dict) -> None:
     global default_redeem
-    flash_alert(10, 255, 125, 0)
+    flash_alert(10, 255, 0, 125)
+    print(data)
     redeem_color(default_redeem)
-    pprint(data)
 
 #Channel Points Redemption Switch
 def redeem_color(redeem, u = False):
@@ -63,57 +63,58 @@ def redeem_color(redeem, u = False):
       wee_woo(3)
       redeem_color(default_redeem)
     elif redeem == 'red':
-      pixels.fill((70, 0, 0))
+      set_all(70, 0, 0)
       block_set(left_shelf, 255, 0, 0)
       block_set(right_shelf, 255, 0, 0)
-      pixels.show()
+      show_all()
       sleep(1)      
       default_redeem = 'red'
     elif redeem == 'green':
-      pixels.fill((0, 0, 100))
+      set_all(0, 100, 0)
       block_set(left_shelf, 0, 255, 0)
       block_set(right_shelf, 0, 255, 0)
-      pixels.show()
+      show_all()
       sleep(1)
       default_redeem = 'green'
     elif redeem == 'blue':
-      pixels.fill((40, 70, 40))
+      set_all(10, 10, 70)
       block_set(left_shelf, 0, 0, 255)
       block_set(right_shelf, 0, 0, 255)
-      pixels.show()
+      block_set(top_edge, 0, 0, 100)
+      show_all()
       sleep(1)
-      default_redeem = 'green'
+      default_redeem = 'blue'
     elif redeem == 'purple':
-      pixels.fill((70, 55, 25))
-      block_set(left_shelf, 145, 70, 255)
-      block_set(right_shelf, 145, 70, 255)
-      pixels.show()
+      set_all(70, 0, 160)
+      block_set(left_shelf, 145, 0, 255)
+      block_set(right_shelf, 145, 0, 255)
+      show_all()
       sleep(1)
       default_redeem = 'purple'
     elif redeem == 'aqua':
-      pixels.fill((40, 70, 50))
-      block_set(left_shelf, 175, 175, 255)
-      block_set(right_shelf, 175, 175, 255)
-      pixels.show()
+      set_all(10, 100, 100)
+      block_set(left_shelf, 40, 125, 125)
+      block_set(right_shelf, 40, 125, 125)
+      show_all()
       sleep(1)
       default_redeem = 'aqua'
     elif redeem == 'orange':
-      pixels.fill((104, 0, 45))
+      set_all(104, 45, 0)
       block_set(left_shelf, 255, 100, 0)
       block_set(right_shelf, 255, 100, 0)
-      pixels.show()
+      show_all()
       sleep(1)
       default_redeem = 'orange'
     elif redeem == 'Sienna':
-      pixels.fill((128, 0, 40))
-      pixels.show()
+      set_all(111, 31, 0)
+      show_all()
       sleep(1)
       default_redeem = 'Sienna'
     elif redeem == 'Hot Pink':
-      pixels.fill((111, 31, 0))
-      pixels.show()
+      set_all(128, 0, 40)
+      show_all()
       sleep(1)
-      default_redeem = 'Sienna'
+      default_redeem = 'Hot Pink'
     elif redeem == 'Multi-Colored':
       multi_color()
       sleep(1)
@@ -123,10 +124,21 @@ def redeem_color(redeem, u = False):
       redeem_color(default_redeem)
     elif redeem == 'Custom Color':
       rgb_val = hex_to_rgb(u)
-      pixels.fill(rgb_val)
+      set_all(rgb_val)
       print(rgb_val)
-      pixels.show()
+      show_all()
       default_redeem = 'Multi-Colored'
+    elif redeem == 'Off':
+      set_all(0,0,0)
+      show_all()
+      default_redeem = 'Off'
+    elif redeem == 'Workbench Only (white)':
+      set_all(0,0,0)
+      block_set(workbench_top, 255, 255, 255)
+      show_all()
+    elif redeem == 'All White Everything':
+      set_all(255, 255, 255)
+      show_all()
     elif redeem == 'Rainbow Puke (10 seconds)':
       rainbow_cycle(800)
       redeem_color(default_redeem)
@@ -163,29 +175,26 @@ lumia_ws = create_connection(lumia_url)
 '''
 
 #define LED groups
-num_pixels = 164
+line_one = 190
+line_two = 161
 ORDER = neopixel.GRB
-pixels = neopixel.NeoPixel(board.D18, num_pixels, brightness =1, auto_write=False, pixel_order=ORDER)
-table = [*range(0, 27)]
-bottom_box6 = [*range(27, 33)]
-bottom_box5 = [*range(33, 39)]
-bottom_box4 = [*range(39, 45)]
-bottom_box3 = [*range(45, 51)]
-bottom_box2 = [*range(51, 57)]
-bottom_box1 = [*range(57, 63)]
-left_edge = [*range(63, 69)]
-top_box1 = [*range(69, 75)]
-top_box2 = [*range(75, 81)]
-top_box3 = [*range(81, 87)]
-top_box4 = [*range(87, 93)]
-top_edge = [*range(93, 117)]
-left_shelf = [*range(117, 140)]
-right_shelf = [*range(140, 165)]
-zone_array = [table, bottom_box6, bottom_box5, bottom_box4, bottom_box3, bottom_box2, bottom_box1, left_edge, top_box1, top_box2, top_box3, top_box4, top_edge]
-section1 = table + bottom_box4 + bottom_box2 + top_box2 + top_box4 + left_shelf
-section2 = bottom_box6 + bottom_box5 + bottom_box3 + bottom_box1 + top_box1 + top_box3 + right_shelf
-edges = left_edge +  top_edge
-nonedges = section1 + section2
+pixels = neopixel.NeoPixel(board.D18, line_one, brightness=1, auto_write=False, pixel_order=ORDER)
+pixels_bottom = neopixel.NeoPixel(board.D21, line_two, brightness=1, auto_write=False, pixel_order=ORDER)
+bottom_box6 = [*range(1117, 1126)]
+bottom_box5 = [*range(1108, 1117)]
+bottom_box4 = [*range(1099, 1108)]
+bottom_box3 = [*range(1090, 1099)]
+bottom_box2 = [*range(1081, 1090)]
+bottom_box1 = [*range(1072, 1081)]
+top_box1 = [*range(1063, 1072)]
+top_box2 = [*range(1054, 1063)]
+top_box3 = [*range(1045, 1054)]
+top_box4 = [*range(1036, 1045)]
+top_edge = [*range(1000, 1036)]
+left_shelf = [*range(0, 71)]
+right_shelf = [*range(71, 142)]
+workbench_top = [*range(142, 190)]
+workbench_bottom = [*range(1126, 1161)]
 
 #Color Wheel for cycling colors
 def wheel(pos):
@@ -216,42 +225,16 @@ def rainbow_cycle(wait):
     sleep(0.005)
 
 def block_set(p, r, g, b):
-  for i in range(num_pixels):
-    if i in p:
-      pixels[i] = (r, b, g)
-'''
-testing code
-def wee_woo_swap(swap_other = False):  
-  for i in range(num_pixels):
-    if i in section1:
-      pixels[i] = (255, 0, 0) if pixels[i] == (0, 0, 0) else (255, 125, 0)
-    if i in section2:
-      pixels[i] = (0, 255, 0) if pixels[i] == (0, 0, 0) else (0, 125, 255)
-    if swap_other and i not in nonedges:
-      pixels[i] = (255, 255, 255) if pixels[i] == (255, 255, 255) else (255, 255, 255)
+  if p[0] < 1000:
+    for i in range(line_one):
+      if i in p:
+        pixels[i] = (r, g, b)
+  else:
+    for i in range(line_two):
+      th = i + 1000
+      if th in p:
+        pixels_bottom[i] = (r, g, b)
 
-def wee_woo_test(l):
-  for i in range(num_pixels):
-    if i in section1:
-      pixels[i] = (0, 255, 0)
-    elif i in section2:
-      pixels[i] = (0, 0, 0)
-    elif i in edges:
-      pixels[i] = (0, 0, 0)
-    else:
-      pixels[i] = (255, 255, 255)
-  for k in range(l):
-    for j in range(20):
-      if j in [10, 15]:
-        wee_woo_swap(True)
-      else:
-        wee_woo_swap()
-      pixels.show()
-      sleep(0.08)
-      wee_woo_swap()
-      pixels.show()
-      sleep(0.08)
-'''
 def wee_woo(l):
   for k in range(l):
     for j in range(20):
@@ -364,24 +347,32 @@ def wee_woo(l):
         pixels.show()
         sleep(0.04)
 
-def strobe(l):
-  pixels.fill((0, 0, 0))
+def set_all(r, g, b):
+  pixels.fill((r, g, b))
+  pixels_bottom.fill((r, g, b))
+
+def show_all():
   pixels.show()
+  pixels_bottom.show()
+
+def strobe(l):
+  set_all(0, 0, 0)
+  show_all()
   for i in range(l):
-    pixels.fill((255, 255, 255))
-    pixels.show()
+    set_all(255, 255, 255)
+    show_all()
     sleep(0.05)
-    pixels.fill((0, 0, 0))
-    pixels.show()
+    set_all(0, 0, 0)
+    show_all()
     sleep(0.05)
 
 def chillin():
-  pixels.fill((35, 35, 50))
-  block_set(top_edge, 60, 20, 60)
-  block_set(left_edge, 60, 20, 60)
-  block_set(left_shelf, 145, 60, 255)
-  block_set(right_shelf, 145, 60, 255)
-  pixels.show()
+  set_all(40, 30, 200)
+  block_set(top_edge, 200, 0, 200)
+  block_set(workbench_top, 30, 0, 60)
+  block_set(left_shelf, 145, 0, 255)
+  block_set(right_shelf, 145, 0, 255)
+  show_all()
 
 def multi_color():
   #Red (70, 10, 10)
@@ -394,21 +385,21 @@ def multi_color():
   #Violet (70, 25, 70)
   #Twitch Purple (145, 70, 255)
   #Under Desk
-  block_set(table, 70, 10, 10)
+  block_set(workbench_bottom, 255, 0, 0)
   #Bottom Box 6
   block_set(bottom_box6, 100, 75, 0)
   #Bottom Box 5
   block_set(bottom_box5, 15, 100, 15)
   #Bottom Box 4
-  block_set(bottom_box4, 70, 10, 10)
+  block_set(bottom_box4, 80, 10, 10)
   #Bottom Box 3
-  block_set(bottom_box3, 70, 55, 70)
+  block_set(bottom_box3, 80, 55, 80)
   #Bottom Box 2
   block_set(bottom_box2, 104, 45, 0)
   #Bottom Box 1
   block_set(bottom_box1, 30, 60, 80)
   #Top Box 1 Left Edge
-  block_set(left_edge, 0, 0, 0)
+  block_set(workbench_top, 70, 0, 150)
   #Top Box 1
   block_set(top_box1, 70, 10, 10)
   #Top Box 2
@@ -423,25 +414,25 @@ def multi_color():
   block_set(left_shelf, 255, 20, 147)
   #Right Shelf
   block_set(right_shelf, 25, 147, 255)
-  pixels.show()
+  show_all()
 
 def flash_alert(l, r, g, b):
   for i in range(l):
-    pixels.fill((r, b, g))
+    set_all(r, g, b)
     for j in range(10):
       block_set(top_edge, 255, 255, 255)
-      block_set(left_edge, 255, 255, 255)
-      pixels.show()
+      block_set(workbench_top, 255, 255, 255)
+      show_all()
       sleep(0.04)
       block_set(top_edge, 0, 0, 0)
-      block_set(left_edge, 0, 0, 0)
-      pixels.show()
+      block_set(workbench_top, 0, 0, 0)
+      show_all()
       sleep(0.04)
       if j >= 5:
-        pixels.fill((0,0,0))
-        pixels.show()
-  pixels.fill((r, b, g))
-  pixels.show()
+        set_all(0,0,0)
+        show_all()
+  set_all(r, g, b)
+  show_all()
 
 '''
 #while listener for
