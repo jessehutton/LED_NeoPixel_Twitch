@@ -4,10 +4,12 @@ import requests
 import re
 import asyncio
 import local_auth
+import sys
 from time import sleep
 from twitchAPI.twitch import Twitch
 from twitchAPI.pubsub import PubSub
 from twitchAPI.types import AuthScope
+from twitchAPI.types import CustomRewardRedemptionStatus
 from pprint import pprint
 from uuid import UUID
 from websocket import create_connection
@@ -36,31 +38,58 @@ def hex_to_rgb(hx, hsl=False):
 def callback_points_redeem(uuid: UUID, data: dict) -> None:
     user = data['data']['redemption']['user']['display_name']
     redeem = data['data']['redemption']['reward']['title']
+    redemptionID = data['data']['redemption']['id']
+    rewardID = data['data']['redemption']['reward']['id']
+    status = data['data']['redemption']['status']
     if 'user_input' in data['data']['redemption']:
       user_input = data['data']['redemption']['user_input']
     else:
       user_input = False
     redeem_color(redeem)
-    print(user + ' redeemed ' + redeem)
+    print('\n' + user + ' redeemed ' + redeem)
+    #To be implemented later, need to recreate rewards using client id
+    #twitch.update_redemption_status(user_id, rewardID, redemptionID, CustomRewardRedemptionStatus.FULFILLED)
+
 
 #Subs via Twitch API
 def callback_subs(uuid: UUID, data: dict) -> None:
     global default_redeem
+    print(data)
     flash_alert(10, 255, 0, 0)
     redeem_color(default_redeem)
 
 #Bits via Twitch API
 def callback_bits(uuid: UUID, data: dict) -> None:
     global default_redeem
-    flash_alert(10, 255, 0, 125)
-    print(data)
+    bits = data['data']['bits_used'] #Collect how many bits were used
+    user = data['data']['user_name'] #Collect name for Printout
+    if bits < 20:
+      flash_alert(1, 80, 5, 40) #bits under 20 get 1 second of dark purple
+    elif bits <= 999:
+      t = int(bits / 20)
+      if t > 20:
+        t = 20
+      flash_alert(t, 255, 0, 125) #bits 20-999 get divided by 20 with a maximum of 20 and run with purple
+    elif bits <= 4999:
+      t = int(bits / 100) 
+      if t > 30:
+        t = 30
+      flash_alert(t, 10, 125, 40)#bits 1000-4999 get divided by 100 with a maximum of 30 and run with green
+    elif bits <= 9999:
+      flash_alert(30, 30, 30, 255)#bits 5000-9999 get 30 of blue
+    elif bits <= 99999:
+      flash_alert(30, 255, 0, 0)#bits 10000-99999 get 30 of red
+    else:
+      flash_alert(30, 104, 45, 0)#bits more than 100000 get 30 of orange
+    print(user + ' cheered with ' + bits + ' bits!')
+    flash_alert(t, 255, 0, 125)
     redeem_color(default_redeem)
 
 #Channel Points Redemption Switch
 def redeem_color(redeem, u = False):
     global default_redeem
     if redeem == 'wee-woo (10 seconds)':
-      wee_woo(3)
+      wee_woo(2)
       redeem_color(default_redeem)
     elif redeem == 'red':
       set_all(70, 0, 0)
@@ -120,7 +149,7 @@ def redeem_color(redeem, u = False):
       sleep(1)
       default_redeem = 'Multi-Colored'
     elif redeem == 'Strobe (5 seconds)':
-      strobe(50)
+      strobe(40)
       redeem_color(default_redeem)
     elif redeem == 'Custom Color':
       rgb_val = hex_to_rgb(u)
@@ -140,7 +169,7 @@ def redeem_color(redeem, u = False):
       set_all(255, 255, 255)
       show_all()
     elif redeem == 'Rainbow Puke (10 seconds)':
-      rainbow_cycle(800)
+      rainbow_cycle(400)
       redeem_color(default_redeem)
     elif redeem == 'chillin':
       chillin()
@@ -158,7 +187,7 @@ lumia_token = local_auth.lumia_token
 twitch = Twitch(my_app_key, my_app_secret)
 twitch.auto_refresh_auth = False
 twitch.authenticate_app([])
-target_scope = [AuthScope.BITS_READ, AuthScope.CHANNEL_READ_REDEMPTIONS, AuthScope.CHANNEL_READ_SUBSCRIPTIONS]
+target_scope = [AuthScope.BITS_READ, AuthScope.CHANNEL_READ_REDEMPTIONS, AuthScope.CHANNEL_READ_SUBSCRIPTIONS, AuthScope.CHANNEL_MANAGE_REDEMPTIONS]
 twitch.set_user_authentication(my_user_auth_token, target_scope)
 user_id = twitch.get_users(logins=['NRG_'])['data'][0]['id']
 pubsub = PubSub(twitch)
@@ -403,3 +432,19 @@ while True:
   msg = lumia_ws.recv()
   print(msg)
 '''
+chillin()
+while True:
+  prompt_input = input("1) Wee-Woo\n2) chillin\n3) Multi-Colored\nr) Reboot\nx) Exit\nEnter Selection: ")
+  if prompt_input == '1':
+    redeem_color('wee-woo (10 seconds)')
+  elif prompt_input == '2':
+    redeem_color('chillin')
+  elif prompt_input == '3':
+    redeem_color('Multi-Colored')
+  elif prompt_input == 'r':
+    pubsub.stop()
+    pubsub.start()
+    print('pubsub reloaded')
+  elif prompt_input == 'x':
+    pubsub.stop()
+    sys.exit()
