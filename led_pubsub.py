@@ -1,10 +1,10 @@
 import board
 import neopixel
 import requests
-import re
 import asyncio
 import local_auth
 import sys
+from os import system
 from time import sleep
 from twitchAPI.twitch import Twitch
 from twitchAPI.pubsub import PubSub
@@ -15,6 +15,7 @@ from uuid import UUID
 from websocket import create_connection
 
 default_redeem = 'Multi-Colored'
+default_custom = [0,0,0]
 
 """Converts a HEX code into RGB or HSL.
 Args:
@@ -24,15 +25,17 @@ Return:
     Tuple of length 3 consisting of either int or float values.
 Raise:
     ValueError: If given value is not a valid HEX code."""
-def hex_to_rgb(hx, hsl=False):
-    if re.compile(r'#[a-fA-F0-9]{3}(?:[a-fA-F0-9]{3})?$').match(hx):
-        div = 255.0 if hsl else 0
-        if len(hx) <= 4:
-            return tuple(int(hx[i]*2, 16) / div if div else
-                         int(hx[i]*2, 16) for i in (1, 3, 2))
-        return tuple(int(hx[i:i+2], 16) / div if div else
-                     int(hx[i:i+2], 16) for i in (1, 5, 3))
-    print(f'"{hx}" is not a valid HEX code.')
+def hex_to_rgb(u):
+  # Remove any leading "#" character
+    u = u.lstrip("#")
+    # Convert the hex values to RGB values
+    try:
+        r, g, b = tuple(int(u[i:i+2], 16) for i in (0, 2, 4))
+    except ValueError:
+        print('Not a valid Hex Code format but started with #')
+        return 0  # Invalid hex code format
+    # Return the RGB values as a comma-separated string
+    return f"{r},{g},{b}"
 
 #Channel Points Redeem via Twitch API
 def callback_points_redeem(uuid: UUID, data: dict) -> None:
@@ -75,19 +78,23 @@ def callback_bits(uuid: UUID, data: dict) -> None:
       if t > 30:
         t = 30
       flash_alert(t, 10, 125, 40)#bits 1000-4999 get divided by 100 with a maximum of 30 and run with green
+    elif bits == 6666:
+      strobe(200)
+      redeem_color('Off')
     elif bits <= 9999:
       flash_alert(30, 30, 30, 255)#bits 5000-9999 get 30 of blue
     elif bits <= 99999:
       flash_alert(30, 255, 0, 0)#bits 10000-99999 get 30 of red
     else:
       flash_alert(30, 104, 45, 0)#bits more than 100000 get 30 of orange
-    print(user + ' cheered with ' + bits + ' bits!')
+    print(user + ' cheered with ' + str(bits) + ' bits!')
     flash_alert(t, 255, 0, 125)
     redeem_color(default_redeem)
 
 #Channel Points Redemption Switch
 def redeem_color(redeem, u = False):
     global default_redeem
+    global default_custom
     if redeem == 'wee-woo (10 seconds)':
       wee_woo(2)
       redeem_color(default_redeem)
@@ -99,9 +106,9 @@ def redeem_color(redeem, u = False):
       sleep(1)      
       default_redeem = 'red'
     elif redeem == 'green':
-      set_all(0, 100, 0)
-      block_set(left_shelf, 0, 255, 0)
-      block_set(right_shelf, 0, 255, 0)
+      set_all(0, 45, 0)
+      block_set(left_shelf, 0, 100, 0)
+      block_set(right_shelf, 0, 100, 0)
       show_all()
       sleep(1)
       default_redeem = 'green'
@@ -139,6 +146,14 @@ def redeem_color(redeem, u = False):
       show_all()
       sleep(1)
       default_redeem = 'Sienna'
+    elif redeem == 'IckyVicky':
+      set_all(0, 255, 30)
+      block_set(left_shelf, 145, 0, 255)
+      block_set(right_shelf, 145, 0, 255)
+      block_set(workbench_top, 145, 0, 255)
+      block_set(top_edge, 145, 0, 255)
+      show_all()
+      default_redeem = 'IckyVicky'
     elif redeem == 'Hot Pink':
       set_all(128, 0, 40)
       show_all()
@@ -152,15 +167,25 @@ def redeem_color(redeem, u = False):
       strobe(40)
       redeem_color(default_redeem)
     elif redeem == 'Custom Color':
-      rgb_val = hex_to_rgb(u)
+      if u == False:
+        rgb_val = default_custom
+      elif u.startswith("#"):
+        rgb_val = color_select(hex_to_rgb(u))
+      else:
+        rgb_val = color_select(u)
       set_all(rgb_val)
       print(rgb_val)
       show_all()
-      default_redeem = 'Multi-Colored'
+      if rgb_val != 0:
+        default_custom = rgb_val
+        default_redeem = 'Custom Color'
+    elif redeem == 'Teal':
+      set_all(14, 44, 13)
+      show_all()
+      default_redeem = 'Teal'
     elif redeem == 'Off':
       set_all(0,0,0)
       show_all()
-      default_redeem = 'Off'
     elif redeem == 'Workbench Only (white)':
       set_all(0,0,0)
       block_set(workbench_top, 255, 255, 255)
@@ -426,6 +451,27 @@ def flash_alert(l, r, g, b):
   set_all(r, g, b)
   show_all()
 
+def color_select(u):
+  if (u):
+    try:
+      s = list(map(int, c.split(',')))
+      if ((0 <= s[0] <= 255) and (0 <= s[1] <= 255) and (0 <= s[2] <= 255)):
+        return s
+    except ValueError:
+      print('User did not specify comma separated values of r,g,b')
+  else:
+    while True:
+      c = input("Enter Color (comma separated): ")
+      if c == 'x':
+        return 0
+      else:
+        try:
+          s = list(map(int, c.split(',')))
+          if ((0 <= s[0] <= 255) and (0 <= s[1] <= 255) and (0 <= s[2] <= 255)):
+            return s
+        except ValueError:
+          print('Please enter colors in the format of r,g,b with values of 0-255 or press x to exit.')
+
 '''
 #while listener for
 while True:
@@ -434,7 +480,8 @@ while True:
 '''
 chillin()
 while True:
-  prompt_input = input("1) Wee-Woo\n2) chillin\n3) Multi-Colored\nr) Reboot\nx) Exit\nEnter Selection: ")
+  system('clear')
+  prompt_input = input("1) Wee-Woo\n2) chillin\n3) Multi-Colored\n4) Off\n5) Workbench Only\n6) Color Selector\n7) Flash Alert\nr) Reboot\nx) Exit\nEnter Selection: ")
   if prompt_input == '1':
     redeem_color('wee-woo (10 seconds)')
   elif prompt_input == '2':
@@ -448,3 +495,21 @@ while True:
   elif prompt_input == 'x':
     pubsub.stop()
     sys.exit()
+  elif prompt_input == '4':
+    redeem_color('Off')
+  elif prompt_input == '5':
+    redeem_color('Workbench Only (white)')
+  elif prompt_input == '6':
+    s = color_select()
+    if (s!=0):
+      set_all(s[0], s[1], s[2])
+      show_all()
+  elif prompt_input == '7':
+    s = color_select()
+    if (s!=0):
+      t = input('Enter Time: ')
+      try:
+        flash_alert(int(t), s[0], s[1], s[2])
+      except ValueError:
+        print("Not a valid time value, please use an integer.")
+      redeem_color(default_redeem)
