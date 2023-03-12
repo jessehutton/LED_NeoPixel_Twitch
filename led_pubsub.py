@@ -1,7 +1,5 @@
 import board
 import neopixel
-import requests
-import asyncio
 import local_auth
 import sys
 from os import system
@@ -10,21 +8,12 @@ from twitchAPI.twitch import Twitch
 from twitchAPI.pubsub import PubSub
 from twitchAPI.types import AuthScope
 from twitchAPI.types import CustomRewardRedemptionStatus
-from pprint import pprint
 from uuid import UUID
 from websocket import create_connection
 
 default_redeem = 'Multi-Colored'
 default_custom = [0,0,0]
 
-"""Converts a HEX code into RGB or HSL.
-Args:
-    hx (str): Takes both short as well as long HEX codes.
-    hsl (bool): Converts the given HEX code into HSL value if True.
-Return:
-    Tuple of length 3 consisting of either int or float values.
-Raise:
-    ValueError: If given value is not a valid HEX code."""
 def hex_to_rgb(u):
   # Remove any leading "#" character
     u = u.lstrip("#")
