@@ -1,6 +1,7 @@
 import board
 import neopixel
 import local_auth
+import threading
 import sys
 from os import system
 from time import sleep
@@ -37,7 +38,7 @@ def callback_points_redeem(uuid: UUID, data: dict) -> None:
       user_input = data['data']['redemption']['user_input']
     else:
       user_input = False
-    redeem_color(redeem)
+    redeem_color(redeem, user_input)
     print('\n' + user + ' redeemed ' + redeem)
     #To be implemented later, need to recreate rewards using client id
     #twitch.update_redemption_status(user_id, rewardID, redemptionID, CustomRewardRedemptionStatus.FULFILLED)
@@ -162,7 +163,7 @@ def redeem_color(redeem, u = False):
         rgb_val = color_select(hex_to_rgb(u))
       else:
         rgb_val = color_select(u)
-      set_all(rgb_val)
+      set_all(rgb_val[0], rgb_val[1], rgb_val[2])
       print(rgb_val)
       show_all()
       if rgb_val != 0:
@@ -443,7 +444,7 @@ def flash_alert(l, r, g, b):
 def color_select(u):
   if (u):
     try:
-      s = list(map(int, c.split(',')))
+      s = list(map(int, u.split(',')))
       if ((0 <= s[0] <= 255) and (0 <= s[1] <= 255) and (0 <= s[2] <= 255)):
         return s
     except ValueError:
