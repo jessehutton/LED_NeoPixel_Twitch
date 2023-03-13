@@ -441,8 +441,8 @@ def flash_alert(l, r, g, b):
   set_all(r, g, b)
   show_all()
 
-def color_select(u):
-  if (u):
+def color_select(u = False):
+  if (u != False):
     try:
       s = list(map(int, u.split(',')))
       if ((0 <= s[0] <= 255) and (0 <= s[1] <= 255) and (0 <= s[2] <= 255)):
